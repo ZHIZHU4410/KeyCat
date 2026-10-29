@@ -44,6 +44,29 @@ if (process.argv.includes('--no-sandbox') || process.env.KEYCAT_NO_SANDBOX === '
   app.commandLine.appendSwitch('disable-gpu-sandbox');
 }
 
+// ---------------------------------------------------------------------------
+// GPU 兜底
+//
+// Chromium 在 GPU 子进程反复启动失败后会直接 FATAL 掉整个浏览器进程：
+//   FATAL:content\browser\gpu\gpu_data_manager_impl_private.cc]
+//          GPU process isn't usable. Goodbye.
+// 表现出来的现象就是「窗口闪一下就没了」——即使主进程代码完全正常。
+//
+// 这种失败通常来自：目录被安全软件 / 沙箱接管、显卡驱动异常、远程桌面会话等。
+// KeyCat 只是个 2D canvas 覆盖层，完全不需要硬件加速，所以：
+//   1) 默认关掉硬件加速（走软件合成，画面一样）；
+//   2) 再加 --disable-gpu-process-crash-limit，让 Chromium 不会因为 GPU 反复失败自杀。
+// 想要强制开启硬件加速：设置环境变量 KEYCAT_GPU=1。
+// ---------------------------------------------------------------------------
+const useGpu = process.env.KEYCAT_GPU === '1';
+if (!useGpu) {
+  app.disableHardwareAcceleration();
+  app.commandLine.appendSwitch('disable-gpu');
+  app.commandLine.appendSwitch('disable-gpu-compositing');
+}
+app.commandLine.appendSwitch('disable-gpu-process-crash-limit');
+
+
 // 使用独立的用户目录，避免和本机其它 Electron 开发应用共用 %APPDATA%\Electron。
 // 支持便携模式：环境变量 KEYCAT_HOME 指向任意可写目录；
 // 同时逐级回退，避免个别机器上 %APPDATA% 不可写时整个程序起不来。

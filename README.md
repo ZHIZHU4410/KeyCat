@@ -150,17 +150,19 @@ node scripts/debug-cdp.mjs --title="KeyCat 设置" --out=shot.png
 
 ## 常见问题
 
-**双击后没反应 / 一闪就退？**
+**双击后没反应 / 窗口闪一下就消失？**
 
-先看 `%APPDATA%\KeyCat\startup.log`，正常启动应该能看到 `app ready` 和 `windows + tray ready` 两行。
+先看 `%APPDATA%\KeyCat\startup.log`：
 
-如果这个文件根本没生成，说明崩在 Electron 起来之前，最常见的原因是**程序所在的文件夹带了附加 ACL 限制**（沙箱目录、云同步目录、被安全软件接管的目录等），Chromium 的 GPU 子进程会被拦掉，日志里表现为 `0x80000003` / `GPU process isn't usable`。解决办法：
+- 有 `app ready`、`windows + tray ready` 两行 → 主进程正常，问题在 GPU 渲染。旧版本会在 GPU 子进程失败后直接 `FATAL: GPU process isn't usable. Goodbye.` 结束整个进程，表现就是「闪一下没了」。**v1.0.1 起默认关闭硬件加速并禁用 GPU 崩溃上限**，这类闪退不会再出现；
+- 文件根本没生成 → 崩在 Electron 起来之前，最常见原因是**程序所在的文件夹带了附加 ACL 限制**（沙箱目录、云同步目录、被安全软件接管的目录等），Chromium 早期初始化就被拦掉。解决办法：
+  1. 用 ZIP 里的 `install.cmd` 装到 `%LOCALAPPDATA%\Programs\KeyCat`；
+  2. 或者把整个文件夹拷到 `D:\KeyCat` 这类普通目录再双击；
+  3. 临时验证可以用 `KeyCat.exe --no-sandbox` 启动（牺牲渲染进程沙箱，仅建议排障时用）。
 
-1. 优先用安装包，装到 `%LOCALAPPDATA%\Programs\KeyCat`；
-2. 或者把绿色版整个文件夹拷到 `D:\KeyCat` 这类普通目录再双击；
-3. 临时验证可以用 `KeyCat.exe --no-sandbox` 启动（牺牲渲染进程沙箱，仅建议排障时用）。
+**想恢复硬件加速？** 启动前设置环境变量 `KEYCAT_GPU=1`。覆盖层只是 2D canvas，软件合成和硬件合成画面一致，只有 4K + 大量预设时略有差别。
 
-程序启动后默认**只有托盘图标**（右下角，可能在 `^` 溢出区里），桌面上会直接出现预设；想看设置就双击托盘图标，或者按 `Ctrl + Alt + S`。
+**托盘图标找不到？** 在右下角 `^` 溢出区里；双击它打开设置，或按 `Ctrl + Alt + S`。
 
 ## 许可与致谢
 
