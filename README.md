@@ -21,11 +21,11 @@
 
 ## 下载安装包
 
-Windows 10/11 x64，直接下载安装即可（约 127 MB，未签名，首次运行 SmartScreen 可能提示「更多信息 → 仍要运行」）：
+Windows 10/11 x64，直接下载安装即可（约 120 MB，未签名，首次运行 SmartScreen 可能提示「更多信息 → 仍要运行」）：
 
-**[⬇ KeyCat-Setup-1.0.0.exe](https://github.com/ZHIZHU4410/KeyCat/releases/download/v1.0.0/KeyCat-Setup-1.0.0.exe)**
+**[⬇ KeyCat-Setup-1.0.1.exe](https://github.com/ZHIZHU4410/KeyCat/releases/download/v1.0.1/KeyCat-Setup-1.0.1.exe)**
 
-安装向导支持自定义安装目录、创建桌面 / 开始菜单快捷方式，装完可直接启动。
+安装向导支持自定义安装目录、创建桌面 / 开始菜单快捷方式，装完可直接启动。默认装在 `%LOCALAPPDATA%\Programs\KeyCat`，卸载走系统「应用和功能」。
 
 ## 从源码运行
 
@@ -135,6 +135,20 @@ node scripts/debug-cdp.mjs --title="KeyCat 设置" --out=shot.png
 - **独占全屏游戏覆盖**：`alwaysOnTop` 在无边框 / 窗口化全屏下正常，独占全屏（Exclusive Fullscreen）下可能被盖住，建议游戏用无边框窗口。
 - **只覆盖主显示器**：当前版本在 Windows 主显示器的工作区铺满，多屏暂时只支持主屏。
 - **部分截图工具抓不到透明窗口**：覆盖层用了 DWM 的透明表面（`WS_EX_NOREDIRECTIONBITMAP`），`BitBlt` 类截图 / 某些录屏的「窗口捕获」可能拍不到它；OBS 的显示器采集、窗口采集（Windows 10 2004+）正常。
+
+## 常见问题
+
+**双击后没反应 / 一闪就退？**
+
+先看 `%APPDATA%\KeyCat\startup.log`，正常启动应该能看到 `app ready` 和 `windows + tray ready` 两行。
+
+如果这个文件根本没生成，说明崩在 Electron 起来之前，最常见的原因是**程序所在的文件夹带了附加 ACL 限制**（沙箱目录、云同步目录、被安全软件接管的目录等），Chromium 的 GPU 子进程会被拦掉，日志里表现为 `0x80000003` / `GPU process isn't usable`。解决办法：
+
+1. 优先用安装包，装到 `%LOCALAPPDATA%\Programs\KeyCat`；
+2. 或者把绿色版整个文件夹拷到 `D:\KeyCat` 这类普通目录再双击；
+3. 临时验证可以用 `KeyCat.exe --no-sandbox` 启动（牺牲渲染进程沙箱，仅建议排障时用）。
+
+程序启动后默认**只有托盘图标**（右下角，可能在 `^` 溢出区里），桌面上会直接出现预设；想看设置就双击托盘图标，或者按 `Ctrl + Alt + S`。
 
 ## 许可与致谢
 

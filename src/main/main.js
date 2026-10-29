@@ -36,6 +36,14 @@ protocol.registerSchemesAsPrivileged([
 app.setAppUserModelId('com.keycat.overlay');
 app.setName('KeyCat');
 
+// 部分 Windows 环境（安全软件 / 新版 Chromium 沙箱）会让渲染进程沙箱初始化失败，
+// 表现为双击后进程直接以 0x80000003 退出、连日志都没有。
+// 用户可以用 --no-sandbox 启动；这里额外支持 KEYCAT_NO_SANDBOX=1 环境变量。
+if (process.argv.includes('--no-sandbox') || process.env.KEYCAT_NO_SANDBOX === '1') {
+  app.commandLine.appendSwitch('no-sandbox');
+  app.commandLine.appendSwitch('disable-gpu-sandbox');
+}
+
 // 使用独立的用户目录，避免和本机其它 Electron 开发应用共用 %APPDATA%\Electron。
 // 支持便携模式：环境变量 KEYCAT_HOME 指向任意可写目录；
 // 同时逐级回退，避免个别机器上 %APPDATA% 不可写时整个程序起不来。
@@ -85,6 +93,39 @@ if (USER_DATA) {
 
 const store = new Store(path.join(app.getPath('userData'), 'config.json'));
 const hook = new InputHook();
+
+/* ------------------------------------------------------------------ */
+/* 启动日志：出问题时先看这里                                          */
+/* ------------------------------------------------------------------ */
+
+const SELFTEST = process.argv.includes('--selftest');
+const STARTUP_LOG = (() => {
+  try {
+    return path.join(app.getPath('userData'), 'startup.log');
+  } catch {
+    return null;
+  }
+})();
+
+function logStartup(message) {
+  if (!STARTUP_LOG) return;
+  try {
+    fs.appendFileSync(STARTUP_LOG, `${new Date().toISOString()} ${message}\n`, 'utf8');
+  } catch {
+    /* 日志写不了就算了 */
+  }
+}
+
+try {
+  if (STARTUP_LOG && fs.existsSync(STARTUP_LOG) && fs.statSync(STARTUP_LOG).size > 256 * 1024) {
+    fs.writeFileSync(STARTUP_LOG, '', 'utf8');
+  }
+} catch {
+  /* ignore */
+}
+
+logStartup(`---- start v${app.getVersion()} pid=${process.pid} argv=${process.argv.slice(1).join(' ')}`);
+logStartup(`userData=${(() => { try { return app.getPath('userData'); } catch { return '(unknown)'; } })()}`);
 
 let overlayWindow = null;
 let settingsWindow = null;
@@ -556,11 +597,16 @@ function registerIpc() {
 /* ------------------------------------------------------------------ */
 
 if (!app.requestSingleInstanceLock()) {
+  logStartup('another instance is running, quit this one');
   app.quit();
 } else {
-  app.on('second-instance', () => createSettingsWindow());
+  app.on('second-instance', () => {
+    logStartup('second instance launched, opening settings');
+    createSettingsWindow();
+  });
 
   app.whenReady().then(() => {
+    logStartup('app ready');
     protocol.handle('keycat', async (request) => {
       try {
         const url = new URL(request.url);
@@ -587,9 +633,10 @@ if (!app.requestSingleInstanceLock()) {
     registerIpc();
     createOverlayWindow();
     buildTray();
-    startHook();
+    const hookOk = startHook();
+    logStartup(`windows + tray ready, presets=${presets.length}, instances=${(store.get().instances ?? []).length}, hook=${hookOk}`);
 
-    if (process.argv.includes('--open-settings')) createSettingsWindow();
+    if (process.argv.includes('--open-settings') || SELFTEST) createSettingsWindow();
     if (process.argv.includes('--demo')) store.patch({ overlay: { demo: true } });
 
     globalShortcut.register('CommandOrControl+Alt+E', () => setEditMode(!editMode));
@@ -597,6 +644,15 @@ if (!app.requestSingleInstanceLock()) {
     globalShortcut.register('CommandOrControl+Alt+S', () => createSettingsWindow());
 
     app.on('activate', () => createSettingsWindow());
+
+    if (SELFTEST) {
+      setTimeout(() => {
+        logStartup('selftest ok, quitting');
+        console.log('SELFTEST_OK');
+        quitting = true;
+        app.exit(0);
+      }, 5000);
+    }
   });
 
   app.on('window-all-closed', () => {

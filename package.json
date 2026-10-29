@@ -1,7 +1,7 @@
 {
   "name": "keycat-overlay",
   "productName": "KeyCat",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "BongoCat 风格的键鼠 / 手柄输入显示，内置 input-overlay 5.0.5 全部预设，支持在桌面上同时摆放多个预设",
   "main": "src/main/main.js",
   "private": true,
@@ -19,7 +19,7 @@
     "uiohook-napi": "1.5.5"
   },
   "devDependencies": {
-    "electron": "45.1.0",
+    "electron": "^44.7.0",
     "electron-builder": "^26.18.0",
     "pngjs": "7.0.0"
   },
