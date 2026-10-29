@@ -19,9 +19,17 @@
 - **开机自启**、全局快捷键、透明度 / 刷新率 / 鼠标灵敏度与死区等设置。
 - **可扩展**：直接把新的 input-overlay 5.x 预设文件夹丢进 `presets/` 或用户预设目录，重启（或点「重新扫描」）就会自动出现。
 
-## 快速开始
+## 下载安装包
 
-需要 Windows 10/11 与 Node.js 18+。
+Windows 10/11 x64，直接下载安装即可（约 127 MB，未签名，首次运行 SmartScreen 可能提示「更多信息 → 仍要运行」）：
+
+**[⬇ KeyCat-Setup-1.0.0.exe](https://github.com/ZHIZHU4410/KeyCat/releases/download/v1.0.0/KeyCat-Setup-1.0.0.exe)**
+
+安装向导支持自定义安装目录、创建桌面 / 开始菜单快捷方式，装完可直接启动。
+
+## 从源码运行
+
+需要 Node.js 18+。
 
 ```bash
 npm install
@@ -30,7 +38,7 @@ npm start
 
 首次启动会在屏幕下方中间放好「鼠标箭头 + WASD 极简」两个预设，托盘里会有 KeyCat 图标。
 
-已经打包好的免安装版本在 `dist/win-unpacked/KeyCat.exe`，双击即可运行；改完代码后可以用 `npm run dist` 重新生成。
+需要免安装绿色版可以用 `npm run dist`（输出 `dist/win-unpacked/KeyCat.exe`），需要重新打安装包用 `npm run dist:setup`。
 
 > 国内网络如果 Electron 下载慢，可以先设置镜像再安装：
 > `set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/`
