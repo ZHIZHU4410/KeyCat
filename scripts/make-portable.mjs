@@ -59,6 +59,28 @@ for (const name of ['install.cmd', 'uninstall.cmd']) {
 }
 writeText(path.join(STAGE, '使用说明.txt'), fs.readFileSync(path.join(TEMPLATES, '使用说明.txt'), 'utf8'));
 
+// 压缩包根目录再放一份「先解压」提示 + 一键安装入口，
+// 避免有人直接在压缩包里双击 KeyCat.exe（那样只会解出单个 exe，缺 resources/ 必然打不开）
+const ROOT_DIR = path.join(ROOT, 'dist', 'portable');
+writeText(path.join(ROOT_DIR, '❗先解压整个文件夹再运行.txt'), fs.readFileSync(path.join(TEMPLATES, '先解压.txt'), 'utf8'));
+writeText(
+  path.join(ROOT_DIR, '一键安装（创建快捷方式）.cmd'),
+  [
+    '@echo off',
+    'setlocal',
+    'cd /d "%~dp0"',
+    `if not exist "%~dp0KeyCat-${VERSION}\\KeyCat.exe" (`,
+    '  echo [!] KeyCat-%VERSION% 文件夹不完整，请先把压缩包完整解压。',
+    '  pause',
+    '  exit /b 1',
+    ')',
+    `cd /d "%~dp0KeyCat-${VERSION}"`,
+    'call install.cmd',
+    '',
+  ].join('\r\n'),
+  { crlf: true, ascii: true },
+);
+
 if (process.argv.includes('--zip')) {
   const zipFile = path.join(ROOT, 'dist', `KeyCat-${VERSION}-win-x64.zip`);
   fs.rmSync(zipFile, { force: true });
@@ -71,7 +93,7 @@ if (process.argv.includes('--zip')) {
 
   if (zipper) {
     console.log(`› 压缩（${path.basename(zipper)}）`);
-    const result = spawnSync(zipper, ['a', '-tzip', '-mx=5', '-mmt=on', zipFile, `KeyCat-${VERSION}`], {
+    const result = spawnSync(zipper, ['a', '-tzip', '-mx=5', '-mmt=on', zipFile, `KeyCat-${VERSION}`, '❗先解压整个文件夹再运行.txt', '一键安装（创建快捷方式）.cmd'], {
       cwd: path.join(ROOT, 'dist', 'portable'),
       stdio: 'inherit',
     });

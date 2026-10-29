@@ -1,0 +1,25 @@
+﻿KeyCat 1.0.1 · 免安装包 —— 请先完整解压！
+=====================================
+
+【重要】不要直接在压缩包里双击 KeyCat.exe！
+         那样 Windows 只会把单个 exe 解到临时目录，
+         缺少 resources 文件夹，程序必然打不开。
+
+正确用法（二选一）：
+
+A. 只想马上用（绿色版）
+   1. 右键这个 zip →「全部解压缩」
+   2. 进入 KeyCat-1.0.1 文件夹
+   3. 双击 KeyCat.exe
+
+B. 想要桌面快捷方式 + 卸载项（推荐）
+   1. 右键这个 zip →「全部解压缩」
+   2. 双击根目录的「一键安装（创建快捷方式）.cmd」
+      （或进入 KeyCat-1.0.1 双击 install.cmd）
+   3. 会装到 %LOCALAPPDATA%\Programs\KeyCat，自动创建桌面/开始菜单快捷方式并启动
+
+卸载：开始菜单/桌面快捷方式所在目录里的 uninstall.cmd，
+      或系统「设置 → 应用和功能」中的 KeyCat。
+
+启动日志：%APPDATA%\KeyCat\startup.log
+快捷键：Ctrl+Alt+E 编辑模式 / Ctrl+Alt+H 显示隐藏 / Ctrl+Alt+S 设置
