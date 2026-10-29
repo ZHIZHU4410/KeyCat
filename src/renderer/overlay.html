@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' keycat: data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' keycat:"
+    />
+    <title>KeyCat Overlay</title>
+    <link rel="stylesheet" href="styles/overlay.css" />
+  </head>
+  <body>
+    <canvas id="stage"></canvas>
+    <div id="hint" class="hint hidden"></div>
+    <script type="module" src="overlay.mjs"></script>
+  </body>
+</html>

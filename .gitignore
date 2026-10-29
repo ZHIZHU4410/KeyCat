@@ -1,0 +1,16 @@
+node_modules/
+.npm-cache/
+.runtime/
+.runtime-*/
+.logs/
+.debug/
+.ref/
+.preview/
+.keycat-data/
+.tmp/
+.install-test*/
+dist/
+*.log
+
+# 原始的 input-overlay 预设下载（内容与 presets/ 重复，仅本地保留）
+input-overlay-5.0.5-presets/

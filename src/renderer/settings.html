@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' keycat: data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' keycat:"
+    />
+    <title>KeyCat 设置</title>
+    <link rel="stylesheet" href="styles/settings.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">KC</div>
+          <div class="brand-text">
+            <strong>KeyCat</strong>
+            <span>键鼠 · 手柄显示</span>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-item is-active" data-tab="presets">
+            <span class="nav-icon">▦</span> 预设库
+          </button>
+          <button class="nav-item" data-tab="layout">
+            <span class="nav-icon">◫</span> 屏幕布局
+          </button>
+          <button class="nav-item" data-tab="settings">
+            <span class="nav-icon">⚙</span> 设置
+          </button>
+          <button class="nav-item" data-tab="about">
+            <span class="nav-icon">✦</span> 关于
+          </button>
+        </nav>
+
+        <div class="sidebar-foot">
+          <div class="status-line" id="hook-status">全局监听：检测中…</div>
+          <div class="status-line dim" id="count-status">0 个预设 · 0 个显示项</div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div class="topbar-title">
+            <h1 id="page-title">预设库</h1>
+            <p id="page-desc">选择任意 input-overlay 5.x 预设，点击即可放到屏幕上。</p>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn ghost" id="btn-visible">隐藏显示层</button>
+            <button class="btn primary" id="btn-edit">进入编辑模式</button>
+          </div>
+        </header>
+
+        <!-- 预设库 -->
+        <section class="panel is-active" data-panel="presets">
+          <div class="toolbar">
+            <input class="input" id="search" type="search" placeholder="搜索预设名称或文件名…" />
+            <div class="chips" id="chips">
+              <button class="chip is-active" data-cat="all">全部</button>
+              <button class="chip" data-cat="keyboard">键盘</button>
+              <button class="chip" data-cat="mouse">鼠标</button>
+              <button class="chip" data-cat="gamepad">手柄</button>
+              <button class="chip" data-cat="other">其他</button>
+            </div>
+            <div class="toolbar-right">
+              <button class="btn ghost" id="btn-rescan">重新扫描</button>
+              <button class="btn ghost" id="btn-folder">打开预设文件夹</button>
+            </div>
+          </div>
+          <div class="grid" id="preset-grid"></div>
+          <p class="empty" id="preset-empty" hidden>没有匹配的预设。</p>
+        </section>
+
+        <!-- 布局 -->
+        <section class="panel" data-panel="layout">
+          <div class="toolbar">
+            <div class="toolbar-note" id="layout-note">可以同时摆放任意多个预设，每个都能单独调整位置、大小和透明度。</div>
+            <div class="toolbar-right">
+              <button class="btn ghost" id="btn-arrange">自动排列</button>
+              <button class="btn ghost" id="btn-show-all">全部显示</button>
+              <button class="btn ghost danger" id="btn-clear">清空</button>
+            </div>
+          </div>
+          <div class="instance-list" id="instance-list"></div>
+          <p class="empty" id="layout-empty" hidden>还没有放到屏幕上的预设，去「预设库」里点一个吧。</p>
+        </section>
+
+        <!-- 设置 -->
+        <section class="panel" data-panel="settings">
+          <div class="settings-group">
+            <h2>显示</h2>
+            <div class="setting-row">
+              <div class="setting-text">
+                <strong>鼠标穿透</strong>
+                <span>开启时显示层不拦截任何鼠标操作，日常挂机用这个。</span>
+              </div>
+              <label class="switch"><input type="checkbox" data-setting="clickThrough" /><i></i></label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <strong>始终置顶</strong>
+                <span>让显示层保持在其他窗口上方。</span>
+              </div>
+              <label class="switch"><input type="checkbox" data-setting="alwaysOnTop" /><i></i></label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <strong>全局不透明度</strong>
+                <span>整个显示层的透明度，0.2 ~ 1.0。</span>
+              </div>
+              <div class="setting-control">
+                <input type="range" min="20" max="100" step="1" data-setting="opacity" />
+                <output data-output="opacity">100%</output>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <strong>刷新率</strong>
+                <span>显示层的重绘上限，越高越跟手。</span>
+              </div>
+              <div class="setting-control">
+                <select data-setting="fps">
+                  <option value="30">30 FPS</option>
+                  <option value="60">60 FPS</option>
+                  <option value="120">120 FPS</option>
+                  <option value="144">144 FPS</option>
+                </select>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <strong>网格辅助线</strong>
+                <span>编辑模式下给每个预设画上 20px 网格。</span>
+              </div>
+              <label class="switch"><input type="checkbox" data-setting="grid" /><i></i></label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <strong>演示模式</strong>
+                <span>自动模拟按键与鼠标移动，方便预览预设效果。</span>
+              </div>
+              <label class="switch"><input type="checkbox" data-setting="demo" /><i></i></label>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h2>鼠标</h2>
+            <div class="setting-row">
+              <div class="setting-text">
+                <strong>灵敏度</strong>
+                <span>数值越小，光点 / 箭头对鼠标移动越敏感。</span>
+              </div>
+              <div class="setting-control">
+                <input type="range" min="20" max="400" step="5" data-setting="mouseSensitivity" />
+                <output data-output="mouseSensitivity">100</output>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <strong>死区</strong>
+                <span>小于该像素的微小移动会被忽略，避免光点抖动。</span>
+              </div>
+              <div class="setting-control">
+                <input type="range" min="0" max="20" step="1" data-setting="mouseDeadzone" />
+                <output data-output="mouseDeadzone">0</output>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h2>系统</h2>
+            <div class="setting-row">
+              <div class="setting-text">
+                <strong>开机自动启动</strong>
+                <span>登录 Windows 后自动在后台运行。</span>
+              </div>
+              <label class="switch"><input type="checkbox" id="login-toggle" /><i></i></label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <strong>快捷键</strong>
+                <span><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>E</kbd> 编辑模式 · <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>H</kbd> 显示 / 隐藏 · <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd> 设置</span>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <strong>预设目录</strong>
+                <span class="mono" id="preset-paths">—</span>
+              </div>
+              <div class="setting-control">
+                <button class="btn ghost" id="btn-user-folder">用户目录</button>
+                <button class="btn ghost" id="btn-builtin-folder">内置目录</button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <strong>重置</strong>
+                <span>恢复默认布局与设置（不会删除预设文件）。</span>
+              </div>
+              <div class="setting-control">
+                <button class="btn ghost danger" id="btn-reset">恢复默认</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 关于 -->
+        <section class="panel" data-panel="about">
+          <div class="about-card">
+            <div class="about-head">
+              <div class="brand-mark large">KC</div>
+              <div>
+                <h2>KeyCat <span class="tag">v<span id="app-version">1.0.0</span></span></h2>
+                <p>仿 BongoCat 的桌面键鼠 / 手柄输入显示，内置 input-overlay 5.0.5 全部预设，并支持在屏幕上同时摆放多个预设。</p>
+              </div>
+            </div>
+            <ul class="about-list">
+              <li><b>预设格式</b>：兼容 <code>univrsal/input-overlay</code> 5.0.x 的 layout JSON + PNG 图集（元素类型 0~9）。</li>
+              <li><b>全局监听</b>：由 <code>uiohook-napi</code>（libuiohook）提供低层键鼠钩子。</li>
+              <li><b>手柄</b>：浏览器 Gamepad API，需要手柄与显示层窗口获得焦点。</li>
+              <li><b>素材版权</b>：预设与图集来自 input-overlay 社区，遵循其原始授权；本程序仅做渲染与交互。</li>
+              <li><b>灵感来源</b>：<code>ayangweb/BongoCat</code>。</li>
+            </ul>
+            <div class="about-foot">MIT License · 用 Electron 构建</div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="settings.mjs"></script>
+  </body>
+</html>
