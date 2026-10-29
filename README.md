@@ -19,13 +19,19 @@
 - **开机自启**、全局快捷键、透明度 / 刷新率 / 鼠标灵敏度与死区等设置。
 - **可扩展**：直接把新的 input-overlay 5.x 预设文件夹丢进 `presets/` 或用户预设目录，重启（或点「重新扫描」）就会自动出现。
 
-## 下载安装包
+## 下载
 
-Windows 10/11 x64，直接下载安装即可（约 120 MB，未签名，首次运行 SmartScreen 可能提示「更多信息 → 仍要运行」）：
+Windows 10/11 x64，绿色免安装（约 153 MB，未签名，首次运行 SmartScreen 可能提示「更多信息 → 仍要运行」）：
 
-**[⬇ KeyCat-Setup-1.0.1.exe](https://github.com/ZHIZHU4410/KeyCat/releases/download/v1.0.1/KeyCat-Setup-1.0.1.exe)**
+**[⬇ KeyCat-1.0.1-win-x64.zip](https://github.com/ZHIZHU4410/KeyCat/releases/download/v1.0.1/KeyCat-1.0.1-win-x64.zip)**
 
-安装向导支持自定义安装目录、创建桌面 / 开始菜单快捷方式，装完可直接启动。默认装在 `%LOCALAPPDATA%\Programs\KeyCat`，卸载走系统「应用和功能」。
+用法：
+
+1. 解压到任意目录（例如 `D:\KeyCat`），双击 `KeyCat.exe` 就能直接用；
+2. 想要开始菜单 / 桌面快捷方式，双击压缩包里的 **`install.cmd`**，它会复制到 `%LOCALAPPDATA%\Programs\KeyCat`、创建快捷方式，并在「应用和功能」里注册卸载项；
+3. 卸载：双击安装目录里的 `uninstall.cmd`，或用系统「应用和功能」。
+
+> 为什么不是 NSIS 安装包：electron-builder 打出来的 NSIS 安装器在部分 Windows 环境（含本机）会直接报 `Error writing temporary file` 而起不来，而同样的代码用普通 NSIS 脚本打包则正常，属于该模板的环境兼容问题。为了避免大家卡在安装器上，改用 ZIP + 安装脚本，功能一致（快捷方式、卸载项都有）。
 
 ## 从源码运行
 
@@ -38,7 +44,13 @@ npm start
 
 首次启动会在屏幕下方中间放好「鼠标箭头 + WASD 极简」两个预设，托盘里会有 KeyCat 图标。
 
-需要免安装绿色版可以用 `npm run dist`（输出 `dist/win-unpacked/KeyCat.exe`），需要重新打安装包用 `npm run dist:setup`。
+打包相关：
+
+```bash
+npm run dist        # 免安装目录 dist/win-unpacked
+npm run pack        # 免安装目录 + dist/KeyCat-<版本>-win-x64.zip（含 install.cmd）
+npm run dist:setup  # NSIS 安装包（部分环境会报 temp 错误，见上）
+```
 
 > 国内网络如果 Electron 下载慢，可以先设置镜像再安装：
 > `set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/`

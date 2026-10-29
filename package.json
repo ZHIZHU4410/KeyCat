@@ -13,6 +13,7 @@
     "check": "node scripts/check-presets.js",
     "preview": "node scripts/render-preview.mjs",
     "dist": "electron-builder --win --x64 --dir",
+    "pack": "electron-builder --win --x64 --dir && node scripts/make-portable.mjs --zip",
     "dist:setup": "electron-builder --win nsis --x64"
   },
   "dependencies": {
@@ -44,14 +45,14 @@
       ]
     },
     "nsis": {
-      "oneClick": false,
+      "oneClick": true,
       "perMachine": false,
-      "allowElevation": true,
-      "allowToChangeInstallationDirectory": true,
+      "allowElevation": false,
+      "packElevateHelper": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "KeyCat",
-      "runAfterFinish": true,
+      "runAfterFinish": false,
       "deleteAppDataOnUninstall": false,
       "artifactName": "KeyCat-Setup-${version}.exe"
     }
